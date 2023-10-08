@@ -18,11 +18,6 @@ export class Database {
     fs.writeFile(databasePath, JSON.stringify(this.#database))
   }
 
-  verifyIfTableExists(table){
-    if(Array.isArray(this.#database[table])) return true
-    return false
-  }
-
   verifyId(table, id){
     return this.#database[table].findIndex((row) => row.id === id)
   }
@@ -39,7 +34,7 @@ export class Database {
     return data
   }
   insert(table, data){
-    if(this.verifyIfTableExists(table)){  
+    if(Array.isArray(this.#database[table])){  
       this.#database[table].push(data)
     }else{
       this.#database[table] = [data]
@@ -66,18 +61,6 @@ export class Database {
         }
         this.#persist()
       }
-  }
-  completedTask(table, id){
-    const itemIndex = this.verifyId(table, id)
-    if(itemIndex > -1){
-      const oldData = this.#database[table][itemIndex]
-      const newItemData = {
-        ...oldData,
-        completed_at: new Date()
-      }
-      this.#database[table][itemIndex] = newItemData
-      this.#persist()
-    }
   }
 
 }

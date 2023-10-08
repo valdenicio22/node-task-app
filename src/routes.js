@@ -82,7 +82,7 @@ export const routes = [
   },
   {
     method: 'PATCH',
-    path: buildRoutePath('/tasks/:id'),
+    path: buildRoutePath('/tasks/:id/complete'),
     handler:(req, res) => {
       const {id} = req.params
       const idExist = database.verifyId('tasks', id)
@@ -91,7 +91,10 @@ export const routes = [
           message: 'Id not found'
         }))
       }
-      database.completedTask('tasks', id)
+      database.update('tasks', id, {
+        completed_at: new Date(),
+        updated_at: new Date()
+      })
       return res.writeHead(200).end(JSON.stringify(database.select('tasks', {id})))
     }
   }

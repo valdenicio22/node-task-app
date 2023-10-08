@@ -23,6 +23,10 @@ export class Database {
     return false
   }
 
+  verifyId(table, id){
+    return this.#database[table].findIndex((row) => row.id === id)
+  }
+
   select(table, search){
     let data = this.#database[table] ?? []
     if(search){
@@ -44,24 +48,36 @@ export class Database {
     return data
   }
   delete(table, id){
-    if(this.verifyIfTableExists(table)){
-      const itemIndex = this.#database[table].findIndex((item) => item.id === id)
+    const itemIndex = this.verifyId(table, id)
 
-      if(itemIndex > -1){
-        this.#database[table].splice(itemIndex, 1)
-        this.#persist()
-      }else{
-        return false
-      }
-    }else return false
+    if(itemIndex > -1){
+      this.#database[table].splice(itemIndex, 1)
+      this.#persist()
+    }
   }
   update(table, id, data){
-    if(this.verifyIfTableExists(table)){
-      const itemIndex = this.#database[table].findIndex(item => item.id === id)
+    const itemIndex = this.verifyId(table, id)
       if(itemIndex > -1){
-        this.#database[table][itemIndex] = {id, ...data}
+        
+        const olddata = this.#database[table][itemIndex]
+        this.#database[table][itemIndex] = {
+          ...olddata,
+          ...data
+        }
         this.#persist()
-      }else return false
-    }else return false
+      }
   }
+  completedTask(table, id){
+    const itemIndex = this.verifyId(table, id)
+    if(itemIndex > -1){
+      const oldData = this.#database[table][itemIndex]
+      const newItemData = {
+        ...oldData,
+        completed_at: new Date()
+      }
+      this.#database[table][itemIndex] = newItemData
+      this.#persist()
+    }
+  }
+
 }

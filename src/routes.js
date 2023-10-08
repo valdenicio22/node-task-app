@@ -24,7 +24,7 @@ export const routes = [
       const {title, description} = req.body
 
       if (!title || !description) {
-        return response.writeHead(422).end(JSON.stringify({
+        return response.writeHead(400).end(JSON.stringify({
           message: "Title and description are required."
         }));
       }
@@ -42,5 +42,57 @@ export const routes = [
       return res.writeHead(201).end()
     }
   },
-  
+  {
+    method: 'PUT',
+    path: buildRoutePath('/tasks/:id'),
+    handler:(req, res) => {
+      
+      const {id} = req.params
+      const {title, description} = req.body
+      const idExist = database.verifyId('tasks', id)
+      if(idExist < 0){
+        return res.writeHead(400).end(JSON.stringify({
+          message: "Id not found"
+        }))
+      }
+      if(!title || !description){
+        return res.writeHead(400).end(JSON.stringify({
+          message: 'Title and description must be provided'
+        }))
+      }
+      database.update('tasks', id, {title, description, updated_at: new Date()})
+      return res.writeHead(204).end()
+    }
+  },
+  {
+    method: 'DELETE',
+    path: buildRoutePath('/tasks/:id'),
+    handler: (req, res) => {
+      const {id} = req.params
+
+      const idExist = database.verifyId('tasks', id);
+      if(idExist < 0){
+        return res.writeHead(400).end(JSON.stringify({
+          message: 'Id not found'
+        }))
+      }
+      database.delete('tasks', id)
+      return res.writeHead(204).end()
+    }
+  },
+  {
+    method: 'PATCH',
+    path: buildRoutePath('/tasks/:id'),
+    handler:(req, res) => {
+      const {id} = req.params
+      const idExist = database.verifyId('tasks', id)
+      if(idExist < 0){
+        return res.writeHead(400).end(JSON.stringify({
+          message: 'Id not found'
+        }))
+      }
+      database.completedTask('tasks', id)
+      return res.writeHead(200).end(JSON.stringify(database.select('tasks', {id})))
+    }
+  }
 ]
